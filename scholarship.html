@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Find, apply and track scholarships in one place.">
+  <title>ScholarHub - Scholarship Management System for students</title>
+  <style>
+/* style.css - mobile first, responsive */
+:root {
+  --accent: #4f46e5;
+  --accent-dark: #332d94;
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --danger: #dc2626;
+  --success: #15803d;
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container { width: min(1100px, 92%); margin-inline: auto; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute; left: -999px; top: 0; z-index: 100;
+  background: #000; color: #fff; padding: 8px 12px;
+}
+.skip-link:focus { left: 0; }
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Header / navigation ---------- */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; position: relative;
+}
+.logo { font-weight: 700; font-size: 1.25rem; color: var(--accent); text-decoration: none; }
+.menu-toggle {
+  background: none; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 1.3rem; padding: 4px 10px; cursor: pointer;
+}
+.nav {
+  display: none; position: absolute; top: 100%; left: 0; right: 0;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.nav.open { display: block; }
+.nav ul { list-style: none; margin: 0; padding: 8px 0; }
+.nav a { display: block; padding: 10px 16px; color: var(--text); text-decoration: none; font-weight: 500; }
+.nav a:hover { color: var(--accent); }
+
+/* ---------- Hero ---------- */
+.hero {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff; text-align: center; padding: 64px 0;
+}
+.hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); margin: 0 0 12px; line-height: 1.2; }
+.hero p { max-width: 640px; margin: 0 auto 24px; font-size: 1.1rem; opacity: .95; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+.btn {
+  display: inline-block; padding: 10px 22px; border-radius: 999px;
+  font-weight: 600; font-size: 1rem; text-decoration: none; cursor: pointer;
+  border: 2px solid transparent; transition: transform .15s, background .15s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-light { background: #fff; color: var(--accent-dark); }
+.btn-ghost { border-color: #fff; color: #fff; background: transparent; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-outline { background: transparent; color: var(--accent); border-color: var(--accent); }
+
+/* ---------- Sections ---------- */
+.section { padding: 56px 0; }
+.section.alt { background: var(--surface); }
+.section h2 { margin: 0 0 6px; font-size: 1.8rem; }
+.section-sub { color: var(--muted); margin: 0 0 24px; }
+
+.features { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.feature {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; text-align: center;
+}
+.feature .icon { font-size: 2rem; }
+.feature h3 { margin: 8px 0 4px; }
+.feature p { margin: 0; color: var(--muted); }
+
+/* ---------- Search + cards ---------- */
+.toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+.toolbar input, .toolbar select { flex: 1; }
+#result-count { color: var(--muted); margin: 8px 0 16px; }
+
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  transition: box-shadow .2s, transform .2s;
+}
+.card:hover { box-shadow: 0 8px 20px rgba(0, 0, 0, .08); transform: translateY(-3px); }
+.card h3 { margin: 10px 0 6px; font-size: 1.1rem; }
+.card p { margin: 0 0 8px; color: var(--muted); }
+.card .meta { color: var(--text); font-size: .9rem; font-weight: 500; }
+.badge {
+  display: inline-block; background: color-mix(in srgb, var(--accent) 12%, white);
+  color: var(--accent-dark); font-size: .8rem; font-weight: 600;
+  padding: 2px 10px; border-radius: 999px;
+}
+.empty, .error { padding: 16px; border-radius: 8px; }
+.error { background: #fef2f2; color: var(--danger); }
+
+/* ---------- Form ---------- */
+input, select, textarea {
+  width: 100%; padding: 10px 12px; font: inherit; color: inherit;
+  background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;
+}
+input[type="checkbox"] { width: auto; margin-right: 8px; }
+.form-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+.field label { display: block; font-weight: 600; margin-bottom: 4px; }
+.req { color: var(--danger); }
+.field.checkbox { display: flex; flex-wrap: wrap; align-items: center; }
+.field.checkbox label { margin: 0; font-weight: 500; }
+.field-error { display: block; min-height: 1.2em; color: var(--danger); font-size: .85rem; width: 100%; }
+.invalid { border-color: var(--danger); background: #fff7f7; }
+.form-message { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-weight: 500; }
+.form-message.success { background: #f0fdf4; color: var(--success); }
+.form-message.error { background: #fef2f2; color: var(--danger); }
+.form-actions { margin-top: 16px; }
+
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+}
+
+/* ---------- Saved entries table ---------- */
+.saved { margin-top: 40px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--surface); }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { background: color-mix(in srgb, var(--accent) 10%, white); }
+
+/* ---------- About / footer ---------- */
+.about-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+.about-grid aside { background: var(--bg); border-radius: var(--radius); padding: 20px; }
+.about-grid ul { margin: 8px 0 0; padding-left: 20px; }
+.site-footer { background: #111827; color: #d1d5db; text-align: center; padding: 20px 0; font-size: .9rem; }
+.site-footer p { margin: 0; }
+
+/* ---------- Tablet / desktop ---------- */
+@media (min-width: 768px) {
+  .menu-toggle { display: none; }
+  .nav { display: block; position: static; background: none; border: 0; }
+  .nav ul { display: flex; gap: 4px; padding: 0; }
+  .toolbar { flex-direction: row; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .field.full { grid-column: 1 / -1; }
+  .about-grid { grid-template-columns: 2fr 1fr; }
+}
+  </style>
+</head>
+<body data-storage="01-scholarship-management">
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="#home"><span aria-hidden="true">🎓</span> ScholarHub</a>
+      <button class="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav">&#9776;</button>
+      <nav id="nav" class="nav" aria-label="Main navigation">
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#browse">Scholarships</a></li>
+          <li><a href="#register">Apply</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- Hero -->
+    <section id="home" class="hero">
+      <div class="container">
+        <h1>Never miss a scholarship again</h1>
+        <p>Browse every scholarship with its amount and deadline, then apply online in two minutes.</p>
+        <div class="hero-actions">
+          <a class="btn btn-light" href="#browse">Scholarships</a>
+          <a class="btn btn-ghost" href="#register">Apply</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" aria-labelledby="features-title">
+      <div class="container">
+        <h2 id="features-title">What you can do</h2>
+        <p class="section-sub">Find, apply and track scholarships in one place.</p>
+        <div class="features">
+        <article class="feature">
+          <div class="icon" aria-hidden="true">🔍</div>
+          <h3>Browse schemes</h3>
+          <p>See every scholarship with eligibility, amount and deadline.</p>
+        </article>
+        <article class="feature">
+          <div class="icon" aria-hidden="true">📝</div>
+          <h3>Apply online</h3>
+          <p>Fill one simple form instead of running between offices.</p>
+        </article>
+        <article class="feature">
+          <div class="icon" aria-hidden="true">📊</div>
+          <h3>Track applications</h3>
+          <p>Keep a record of the applications you have submitted.</p>
+        </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data loaded from data.json using fetch() -->
+    <section id="browse" class="section alt" aria-labelledby="browse-title">
+      <div class="container">
+        <h2 id="browse-title">Available Scholarships</h2>
+        <p class="section-sub">Search or filter to find a scheme you are eligible for.</p>
+        <div class="toolbar">
+          <label class="sr-only" for="search">Search</label>
+          <input type="search" id="search" placeholder="Search...">
+          <label class="sr-only" for="category">Filter by category</label>
+          <select id="category">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+        <p id="result-count" aria-live="polite"></p>
+        <div id="cards" class="grid"></div>
+      </div>
+    </section>
+
+    <!-- Form -->
+    <section id="register" class="section" aria-labelledby="form-title">
+      <div class="container">
+        <h2 id="form-title">Scholarship Application Form</h2>
+        <p class="section-sub">Fill in your details carefully. All fields marked * are required.</p>
+        <form id="main-form" class="form-card" novalidate>
+          <div class="form-grid">
+          <div class="field">
+            <label for="name">Full name <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" placeholder="Your full name" data-label="Full name" required>
+            <small class="field-error" id="name-error"></small>
+          </div>
+          <div class="field">
+            <label for="regno">Register number <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="regno" name="regno" placeholder="e.g. 2026ECE001" data-label="Register number" required>
+            <small class="field-error" id="regno-error"></small>
+          </div>
+          <div class="field">
+            <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" data-label="Email" required>
+            <small class="field-error" id="email-error"></small>
+          </div>
+          <div class="field">
+            <label for="dept">Department <span class="req" aria-hidden="true">*</span></label>
+            <select id="dept" name="dept" data-label="Department" required>
+              <option value="">-- Select --</option><option value="CSE">CSE</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="MECH">MECH</option><option value="CIVIL">CIVIL</option><option value="IT">IT</option><option value="AI&amp;DS">AI&amp;DS</option>
+            </select>
+            <small class="field-error" id="dept-error"></small>
+          </div>
+          <div class="field">
+            <label for="scheme">Scholarship applying for <span class="req" aria-hidden="true">*</span></label>
+            <select id="scheme" name="scheme" data-label="Scholarship applying for" required>
+              <option value="">-- Select --</option><option value="Merit Scholarship">Merit Scholarship</option><option value="First Graduate Scholarship">First Graduate Scholarship</option><option value="Post-Matric Scholarship">Post-Matric Scholarship</option><option value="Girl Child Excellence Award">Girl Child Excellence Award</option><option value="Sports Achievement Scholarship">Sports Achievement Scholarship</option><option value="Minority Welfare Scholarship">Minority Welfare Scholarship</option>
+            </select>
+            <small class="field-error" id="scheme-error"></small>
+          </div>
+          <div class="field">
+            <label for="income">Annual family income (₹) <span class="req" aria-hidden="true">*</span></label>
+            <input type="number" id="income" name="income" placeholder="e.g. 150000" data-label="Annual family income (₹)" min="0" max="10000000" required>
+            <small class="field-error" id="income-error"></small>
+          </div>
+          <div class="field full">
+            <label for="reason">Why do you need this scholarship? <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="reason" name="reason" rows="4" placeholder="Write at least 10 characters" data-label="Why do you need this scholarship?" required></textarea>
+            <small class="field-error" id="reason-error"></small>
+          </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="saved">
+          <h3>Entries saved in this browser</h3>
+          <p id="no-entries">No entries yet. Submit the form above to see it here.</p>
+          <div id="table-wrap" class="table-wrap" hidden>
+            <table id="saved-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p><button type="button" id="clear-btn" class="btn btn-outline" hidden>Clear saved entries</button></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section alt" aria-labelledby="about-title">
+      <div class="container about-grid">
+        <article>
+          <h2 id="about-title">About ScholarHub</h2>
+          <p>ScholarHub helps students discover scholarships, apply online and keep a record of their applications. Administrators can later review and approve applications.</p>
+          <p>This is a mini project for <strong>Foundations of Full Stack (26CS102)</strong>.</p>
+        </article>
+        <aside aria-label="Technologies used">
+          <h3>Technologies used</h3>
+          <ul>
+            <li>HTML5 (semantic tags)</li>
+            <li>CSS3 (Flexbox, Grid, media queries)</li>
+            <li>JavaScript ES6+ (DOM, events)</li>
+            <li>Fetch API with JSON</li>
+            <li>Git and GitHub</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year"></span> ScholarHub &middot; Scholarship Management System for students</p>
+  </footer>
+  <script>
+// Sample data. fetch("data.json") is tried first; if there is no data.json
+// next to this file, this copy is used so the page still works.
+const EMBEDDED_DATA = {
+  "items": [
+    {
+      "name": "Merit Scholarship",
+      "category": "Merit",
+      "info": "For students scoring 85% or above in the previous year.",
+      "meta": "₹25,000 per year · Deadline: 30 Nov"
+    },
+    {
+      "name": "First Graduate Scholarship",
+      "category": "Need-based",
+      "info": "For students who are the first graduate in their family.",
+      "meta": "₹20,000 per year · Deadline: 15 Dec"
+    },
+    {
+      "name": "Post-Matric Scholarship",
+      "category": "Government",
+      "info": "Support for SC/ST students pursuing higher studies.",
+      "meta": "₹30,000 per year · Deadline: 31 Dec"
+    },
+    {
+      "name": "Girl Child Excellence Award",
+      "category": "Merit",
+      "info": "Encourages girl students with top academic performance.",
+      "meta": "₹15,000 per year · Deadline: 20 Nov"
+    },
+    {
+      "name": "Sports Achievement Scholarship",
+      "category": "Sports",
+      "info": "For state or national level sports achievers.",
+      "meta": "₹10,000 per year · Deadline: 10 Dec"
+    },
+    {
+      "name": "Minority Welfare Scholarship",
+      "category": "Government",
+      "info": "For eligible minority community students.",
+      "meta": "₹18,000 per year · Deadline: 05 Jan"
+    }
+  ]
+};
+
+// script.js - menu, fetch JSON, search/filter, form validation, localStorage
+"use strict";
+
+/* ---------- Helper: create an element quickly ---------- */
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+/* ---------- 1. Mobile menu (event handling) ---------- */
+const menuBtn = document.querySelector(".menu-toggle");
+const nav = document.getElementById("nav");
+
+menuBtn.addEventListener("click", () => {
+  const isOpen = nav.classList.toggle("open");
+  menuBtn.setAttribute("aria-expanded", String(isOpen));
+});
+
+nav.addEventListener("click", (event) => {
+  if (event.target.tagName === "A") {
+    nav.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded", "false");
+  }
+});
+
+/* ---------- 2. Load JSON data with the Fetch API ---------- */
+const cardsEl = document.getElementById("cards");
+const searchEl = document.getElementById("search");
+const categoryEl = document.getElementById("category");
+const countEl = document.getElementById("result-count");
+let allItems = [];
+
+async function loadItems() {
+  try {
+    const response = await fetch("data.json");
+    if (!response.ok) throw new Error("HTTP error " + response.status);
+    const data = await response.json();
+    allItems = data.items;
+    fillCategories(allItems);
+    renderCards(allItems);
+  } catch (error) {
+    // data.json not found (for example the file was opened directly),
+    // so use the same data stored inside this file.
+    console.warn("fetch failed, using EMBEDDED_DATA:", error);
+    allItems = EMBEDDED_DATA.items;
+    fillCategories(allItems);
+    renderCards(allItems);
+  }
+}
+
+function fillCategories(items) {
+  const categories = [...new Set(items.map((item) => item.category))];
+  categories.forEach((cat) => {
+    const option = el("option", "", cat);
+    option.value = cat;
+    categoryEl.appendChild(option);
+  });
+}
+
+function renderCards(list) {
+  cardsEl.replaceChildren();
+  countEl.textContent = list.length + " result" + (list.length === 1 ? "" : "s") + " found";
+
+  if (list.length === 0) {
+    cardsEl.appendChild(el("p", "empty", "Nothing matches your search. Try a different word."));
+    return;
+  }
+
+  list.forEach((item) => {
+    const card = el("article", "card");
+    card.appendChild(el("span", "badge", item.category));
+    card.appendChild(el("h3", "", item.name));
+    card.appendChild(el("p", "", item.info));
+    card.appendChild(el("p", "meta", item.meta));
+    cardsEl.appendChild(card);
+  });
+}
+
+function filterItems() {
+  const text = searchEl.value.trim().toLowerCase();
+  const category = categoryEl.value;
+
+  const filtered = allItems.filter((item) => {
+    const matchesCategory = category === "all" || item.category === category;
+    const matchesText = (item.name + " " + item.info + " " + item.category).toLowerCase().includes(text);
+    return matchesCategory && matchesText;
+  });
+  renderCards(filtered);
+}
+
+searchEl.addEventListener("input", filterItems);
+categoryEl.addEventListener("change", filterItems);
+loadItems();
+
+/* ---------- 3. Form validation ---------- */
+const form = document.getElementById("main-form");
+const message = document.getElementById("form-message");
+const fields = [...form.querySelectorAll("input, select, textarea")];
+
+function showError(input, msg) {
+  document.getElementById(input.id + "-error").textContent = msg;
+  input.classList.toggle("invalid", msg !== "");
+  input.setAttribute("aria-invalid", String(msg !== ""));
+}
+
+function validateField(input) {
+  const value = input.value.trim();
+  let msg = "";
+
+  if (input.required && (input.type === "checkbox" ? !input.checked : value === "")) {
+    msg = "This field is required.";
+  } else if (input.type === "email" && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    msg = "Enter a valid email address.";
+  } else if (input.type === "tel" && value && !/^[6-9]\d{9}$/.test(value)) {
+    msg = "Enter a valid 10-digit mobile number.";
+  } else if (input.tagName === "TEXTAREA" && value && value.length < 10) {
+    msg = "Please write at least 10 characters.";
+  } else if (input.type === "number" && value !== "") {
+    const num = Number(value);
+    if (input.min !== "" && num < Number(input.min)) msg = "Minimum value is " + input.min + ".";
+    if (input.max !== "" && num > Number(input.max)) msg = "Maximum value is " + input.max + ".";
+  }
+
+  showError(input, msg);
+  return msg === "";
+}
+
+// validate each field when the user leaves it
+form.addEventListener("focusout", (event) => {
+  if (event.target.matches("input, select, textarea")) validateField(event.target);
+});
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const results = fields.map(validateField);   // validate all fields
+  if (!results.every(Boolean)) {
+    message.className = "form-message error";
+    message.textContent = "Please fix the highlighted fields and try again.";
+    fields[results.indexOf(false)].focus();
+    return;
+  }
+
+  const record = {};
+  fields.forEach((f) => {
+    record[f.id] = f.type === "checkbox" ? "Yes" : f.value.trim();
+  });
+  record._date = new Date().toLocaleString();
+
+  const saved = getSaved();
+  saved.push(record);
+  setSaved(saved);
+
+  form.reset();
+  message.className = "form-message success";
+  message.textContent = "Submitted successfully! Your entry is shown in the table below.";
+  renderSaved();
+});
+
+/* ---------- 4. Save entries in the browser (localStorage) ---------- */
+const STORAGE_KEY = "entries-" + document.body.dataset.storage;
+const tableHead = document.querySelector("#saved-table thead");
+const tableBody = document.querySelector("#saved-table tbody");
+const tableWrap = document.getElementById("table-wrap");
+const emptyMsg = document.getElementById("no-entries");
+const clearBtn = document.getElementById("clear-btn");
+const shownFields = fields.slice(0, 4);   // show the first 4 fields in the table
+
+function getSaved() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function setSaved(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch (error) {
+    console.error("Could not save", error);
+  }
+}
+
+function renderSaved() {
+  const saved = getSaved();
+  tableHead.replaceChildren();
+  tableBody.replaceChildren();
+
+  const hasData = saved.length > 0;
+  tableWrap.hidden = !hasData;
+  clearBtn.hidden = !hasData;
+  emptyMsg.hidden = hasData;
+  if (!hasData) return;
+
+  const headRow = el("tr");
+  shownFields.forEach((f) => headRow.appendChild(el("th", "", f.dataset.label)));
+  headRow.appendChild(el("th", "", "Submitted on"));
+  tableHead.appendChild(headRow);
+
+  saved.forEach((record) => {
+    const row = el("tr");
+    shownFields.forEach((f) => row.appendChild(el("td", "", record[f.id] || "-")));
+    row.appendChild(el("td", "", record._date));
+    tableBody.appendChild(row);
+  });
+}
+
+clearBtn.addEventListener("click", () => {
+  setSaved([]);
+  renderSaved();
+});
+
+renderSaved();
+
+/* ---------- 5. Footer year ---------- */
+document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
